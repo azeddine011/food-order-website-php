@@ -1,4 +1,16 @@
+<?php include("../config/connect.php"); ?>
 <?php include("partials/menu.php"); ?>
+
+<?php
+    if(isset($_SESSION["delete"])){
+        echo $_SESSION["delete"];
+        unset($_SESSION["delete"]);
+    }
+    if(isset($_SESSION["update"])){
+        echo $_SESSION["update"];
+        unset($_SESSION["update"]);
+    }
+?>
 
 <div class="orderHeader">
     <h3>Categories</h3>
@@ -27,7 +39,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+
+                        <?php
+                            $query = "SELECT * FROM `food`;";
+                            $res = mysqli_query($cnx,$query);
+
+                            while($row = mysqli_fetch_assoc($res)){
+                                $cat_id = $row["category-id"];
+                                $category = mysqli_fetch_assoc(mysqli_query($cnx,"SELECT * FROM `category` WHERE id=\"$cat_id\";"));
+                                $cat_name = $category['title'];
+                                $active = ($row["active"] == "1")?"Active":"Inactive";
+                                echo '
+
+                                <tr>
+                                    <td>
+                                        <div class="admin-food-img">
+                                            <img src="data:image/jpg;charset=utf8;base64,'.base64_encode($row["image-name"]).' " alt="Plate image">
+                                        </div>
+                                    </td>
+                                    <td>'.$row["title"].'</td>
+                                    <td>'.$cat_name.'</td>
+                                    <td>'.$row["price"].'</td>
+                                    <td>'.$active.'</td>
+                                    <td class="sticky-col">
+                                        <div class="dropDown-btn">
+                                            <i class="fa-regular fa-ellipsis-vertical"></i>
+                                        </div>
+                                        <div class="action-container">
+                                            <ul>
+                                                <li>
+                                                    <span><a href=" ' . siteUrl . 'admin/foods/update.php?id='.$row["id"].'&ctid='.$row["category-id"] . ' ">Edit</a></span>
+                                                </li>
+                                                <li>
+                                                    <span><a href=" ' . siteUrl . 'admin/foods/delete.php?id='.$row["id"].'">Delete</a></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                
+                                ';
+                            }
+
+                        ?>
+
+
+
+
+                        <!-- <tr>
                             <td>
                                 <div class="admin-food-img">
                                     <img src="../images/plate6.png" alt="Plate image">
@@ -52,8 +112,8 @@
                                     </ul>
                                 </div>
                             </td>
-                        </tr>
-                        <tr>
+                        </tr> -->
+                        <!-- <tr>
                             <td>
                                 <div class="admin-food-img">
                                     <img src="../images/plate6.png" alt="Plate image">
@@ -130,7 +190,7 @@
                                     </ul>
                                 </div>
                             </td>
-                        </tr>
+                        </tr> -->
                         
                         <!-- xxxxxxxxxxxxxxx --> 
                     </tbody>

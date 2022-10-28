@@ -41,11 +41,7 @@
             $image_name = basename($_FILES["file-input"]["name"]);
             $image_ext = pathinfo($image_name,PATHINFO_EXTENSION);
 
-            // echo base64_encode($dbImage_name);
-            // header("Content-type: image/jpeg");
-            // echo $dbImage_name;
-            // $test = pathinfo(base64_encode($dbImage_name),PATHINFO_EXTENSION);
-            // echo $test;
+            
             
             if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
                 $url = "https://";
@@ -55,10 +51,7 @@
             $url.= $_SERVER['HTTP_HOST'];
             // Append the requested resource location to the URL
             $url.= $_SERVER['REQUEST_URI'];
-                
-            // echo $url;
-            // echo "<br>";
-            // echo "<hr>";
+           
 
             $html = file_get_contents($url);
             
@@ -67,32 +60,36 @@
             
             $tags = $doc->getElementById("imgBlob");
             $tag = $tags->getAttribute("src");
-            // echo $tag;
 
             $reg = '/(?<=;base64,).*$/i';
             preg_match($reg,$tag,$matches);
-            // echo $matches["0"];
+    
             $imgBlob = $matches["0"];
 
-            // $final_img="";
+            
+       
 
-            if($imgBlob == base64_encode($dbImage_name)){
-                $final_img = $dbImage_name;
-
-                // // echo $dbImage_name;
-                // echo '<br>';
-                // echo "azeddine";
-                // echo '<br>';
-                // // echo $final_img;
-                // die();
-
+            if(empty($_FILES["file-input"]["tmp_name"])){
+                // $final_img = $dbImage_name;
+                $query = $cnx->prepare("UPDATE food SET `category-id` = ?,title = ?,price = ?, 
+                `image-name` = ?, featured = ?, active =? WHERE id=? ;  ");
+                
+                $query->bind_param("isdsssi",$category,$title,$price,$dbImage_name,$featured,$active,$id);
+                $res = $query->execute();
+                
             }else{
                 $allow_ext = array('jpg','png','jpeg','gif');
                 if(in_array($image_ext,$allow_ext)){
 
                     $image = $_FILES["file-input"]["tmp_name"];
                     $image_content = addslashes(file_get_contents($image));
-                    $final_img =$image_content;
+                    // $final_img =$image_content;
+
+                    $query = "UPDATE food SET `category-id` = \"$category\",title = \"$title\",price = $price, 
+                        `image-name` = \"$image_content\", featured = \"$featured\",
+                         active =\"$active\" WHERE id=$id ;  ";
+    
+                    $res = mysqli_query($cnx, $query);
                 }
                 else{
                     $_SESSION["update"] =  '<div class="alertBox" >
@@ -109,30 +106,7 @@
 
             
 
-
             
-            // die();
-            
-            // $allow_ext = array('jpg','png','jpeg','gif');
-            // if(in_array($image_ext,$allow_ext)){
-                // $image = $_FILES["file-input"]["tmp_name"];
-                // $image_content = addslashes(file_get_contents($image));
-                // if(!isset($image_content)){
-                //     $image_content = $dbImage_name;
-                // }
-                    
-                $query = $cnx->prepare("UPDATE food SET `category-id` = ?,title = ?,price = ?, 
-                `image-name` = ?, featured = ?, active =? WHERE id=? ;  ");
-                
-                $query->bind_param("isdbssi",$category,$title,$price,$final_img,$featured,$active,$id);
-                $res = $query->execute();
-
-
-                // $query = "UPDATE food SET `category-id` = \"$category\",title = \"$title\",price = $price, 
-                //         `image-name` = \"$final_img\", featured = \"$featured\",
-                //          active =\"$active\" WHERE id=$id ;  ";
-    
-                // $res = mysqli_query($cnx, $query);
                 if($res){
                     $_SESSION["update"] = '<div class="alertBox">
                         <i class="fa-regular fa-circle-check" style="color: rgb(69, 143, 69);font-size: 26px;flex: 0 0 15%;"></i>
@@ -152,17 +126,7 @@
                     </div>';
                     header("location:".siteUrl."admin/foods.php");
                 }
-            // }
-            // else{
-            //     $_SESSION["update"] =  '<div class="alertBox" >
-            //     <i class="fa-solid fa-circle-xmark" style="color: red;font-size: 26px;flex: 0 0 15%;"></i>
-            //     <div class="alert alert-error">
-            //         <h4>Wrong image Format</h4>
-            //         <h6>Format must be (.jpg, .png, .jpeg, .gif)</h6>
-            //         </div>
-            //     </div>';
-            //     header("location:".siteUrl."admin/foods.php");
-            // }
+           
 
         }else{
             $_SESSION["update"] =  '<div class="alertBox" >

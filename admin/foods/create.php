@@ -9,43 +9,65 @@
         $price = $_POST["foodPrice"];
         $image_name = $_FILES["file-input"]["name"];
         if($title!="" && isset($category) && $price!="" && $image_name!= ""){
+
             $active = (isset($_POST["check-active"]) != "1")? "0":"1";
             $featured = (isset($_POST["check-featured"]) != "1")? "0":"1";
 
-            $image_ext = explode('.',$image_name)[array_key_last(explode('.',$image_name))];
-            $image_name = "food_image_".date("Y-m-d_h_i_sa").".".$image_ext;
+            // $image_ext = explode('.',$image_name)[array_key_last(explode('.',$image_name))];
+            // $image_name = "food_image_".date("Y-m-d_h_i_sa").".".$image_ext;
             
-            $source_path = $_FILES["file-input"]["tmp_name"];
-            $destination_path = "../../images/foods-images/".$image_name;
+            // $source_path = $_FILES["file-input"]["tmp_name"];
+            
+            // $imgContent = addslashes(file_get_contents($source_path));
+            
 
-            //move the image
-            $upload = move_uploaded_file($source_path,$destination_path);
-            if(!$upload){
+            // $destination_path = "../../images/foods-images/".$image_name;
+
+            // //move the image
+            // $upload = move_uploaded_file($source_path,$destination_path);
+            // if(!$upload){
+            //     $failed =  '<div class="alertBox" >
+            //     <i class="fa-solid fa-circle-xmark" style="color: red;font-size: 26px;flex: 0 0 15%;"></i>
+            //     <div class="alert alert-error">
+            //         <h4>Error</h4>
+            //         <h6>Image didn\'t upload try again please</h6>
+            //     </div>
+            //     </div>';
+                
+            // }
+
+            $image_name = basename($_FILES["file-input"]["name"]);
+            $image_ext = pathinfo($image_name,PATHINFO_EXTENSION);
+            
+            $allow_ext = array('jpg','png','jpeg','gif');
+            if(in_array($image_ext,$allow_ext)){
+                $image = $_FILES["file-input"]["tmp_name"];
+                $image_content = addslashes(file_get_contents($image));
+
+                $query = "INSERT INTO food (`category-id`,title,price,`image-name`,featured,active) 
+                            VALUES (\"$category\",\"$title\",$price,\"$image_content\",\"$featured\",\"$active\");";
+    
+                $res = mysqli_query($cnx, $query);
+                if($res){
+                    $success = '<div class="alertBox">
+                        <i class="fa-regular fa-circle-check" style="color: rgb(69, 143, 69);font-size: 26px;flex: 0 0 15%;"></i>
+                        <div class="alert alert-success">
+                            <h4>food Saved</h4>
+                            <h6>Food saved successfully</h6>
+                        </div>
+                    </div>';
+                    
+                }else{
+                    echo "failed";
+                }
+            }else{
                 $failed =  '<div class="alertBox" >
                 <i class="fa-solid fa-circle-xmark" style="color: red;font-size: 26px;flex: 0 0 15%;"></i>
                 <div class="alert alert-error">
-                    <h4>Error</h4>
-                    <h6>Image didn\'t upload try again please</h6>
+                    <h4>Wrong image Format</h4>
+                    <h6>Format must be (jpg, png, jpeg, gif)</h6>
                 </div>
-                </div>';
-                
-            }
-
-            $query = "INSERT INTO food (`category-id`,title,price,`image-name`,featured,active) 
-                        VALUES (\"$category\",\"$title\",$price,\"$image_name\",\"$featured\",\"$active\");";
-
-            $res = mysqli_query($cnx, $query);
-            if($res){
-                $success = '<div class="alertBox">
-                    <i class="fa-regular fa-circle-check" style="color: rgb(69, 143, 69);font-size: 26px;flex: 0 0 15%;"></i>
-                    <div class="alert alert-success">
-                        <h4>food Saved</h4>
-                        <h6>Food saved successfully</h6>
-                    </div>
-                </div>';
-                
-            }else{
-                echo "failed";
+            </div>';
             }
 
         }else{
@@ -144,7 +166,7 @@
                 <div class="bg-table">
                     <div class="table-header flx-col">
                         <div class="title">
-                            <h3>Categories</h3>
+                            <h3>foods</h3>
                         </div>
                         <div class="btn-create">
                             <a href="#" id="saveSubmit">Save</a>

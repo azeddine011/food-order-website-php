@@ -14,7 +14,7 @@ if(isset($_GET["id"])){
                 <h6>Food deleted successfully</h6>
             </div>
         </div>';
-        header("location:".siteUrl."admin/food.php");
+        header("location:".siteUrl."admin/foods.php");
     }else{
         $_SESSION["delete"] = '<div class="alertBox" >
             <i class="fa-solid fa-circle-xmark" style="color: red;font-size: 26px;flex: 0 0 15%;"></i>
@@ -23,9 +23,9 @@ if(isset($_GET["id"])){
                 <h6>the food didn\'t delete successfully</h6>
             </div>
         </div>';
-        header("location:".siteUrl."admin/food.php");
+        header("location:".siteUrl."admin/foods.php");
     }
 
 }else{
-    header("location:".siteUrl."admin/food.php");
+    header("location:".siteUrl."admin/foods.php");
 }
